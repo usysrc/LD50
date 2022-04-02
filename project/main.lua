@@ -29,6 +29,7 @@ function love.load(arg)
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	-- love.mouse.setVisible(false)
     -- print "Require Sources:"
+    love.graphics.setFont(love.graphics.newFont("fonts/HelvetiPixel.ttf", 16))
 	recursiveRequire("src")
 	Gamestate.registerEvents()
 	Gamestate.switch(Game)

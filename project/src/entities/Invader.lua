@@ -5,17 +5,23 @@ local Invader = function(Game, x,y)
     local i = {}
     i.x = x
     i.y = y
-    i.updatespeed = 0.25
+    i.dx = 0
+    i.dy = 0
+    i.updatespeed = 0.05
     i.updatetimer = 0
     i.draw = function(self)
-        love.graphics.setColor(1,0,0)
-        love.graphics.rectangle("fill", self.x*16, self.y*16, 16,16)
+        love.graphics.setColor(1,1,1)
+        if self.mode == "falling" then
+            love.graphics.draw(Image.chute, self.x*16+self.dx*16, self.y*16+self.dy*16-8)
+        end
+        love.graphics.draw(Image.invader, self.x*16+self.dx*16, self.y*16+self.dy*16)
     end
     i.xDir = 1
     i.update = function(self)
     end
     i.turn = function(self)
         -- if Game.player == Game.human then return end
+        if Game.timestop then return end
         i.updatetimer = i.updatetimer + i.updatespeed 
         if i.updatetimer >= 1 then
             i.updatetimer = 0

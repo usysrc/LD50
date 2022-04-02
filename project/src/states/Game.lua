@@ -10,17 +10,21 @@ local Player        = require("src.entities.Player")
 local Skyship       = require("src.entities.Skyship")
 local Vessel        = require("src.entities.Vessel")
 local Tile          = require("src.entities.Tile")
+local Beacon        = require("src.entities.Beacon")
+local Mine          = require("src.entities.Mine")
 
 
 Game = Gamestate.new()
+
 
 function Game:enter()
     Game.entities = {}
     Game.tiles = {}
     Game.map = Map()
     Game.map:init()
-    Game.horizon = 30
+    Game.horizon = 15
     Game.invaders = {}
+    Game.effects = {}
 
     add(Game.entities, Vessel(Game, 1, 0))
     Game.player = Player(Game, 5, Game.horizon+10)
@@ -28,7 +32,29 @@ function Game:enter()
 	add(Game.entities, Game.player)
     Game.skyship = Skyship(Game, 22, Game.horizon-1)
     add(Game.entities, Game.skyship)
+
+    -- add ground tiles
+    for i=0,50 do
+        for j=1,14 do
+            local t = Tile(Game, i, Game.horizon + j -1, Image["grass"..math.floor(math.random(1,2))])
+            add(Game.tiles, t)
+            Game.map:set(t.x, t.y, t)
+        end
+    end
+
+    local t = Beacon(Game, 25, Game.horizon + 10)
+    add(Game.tiles, t)
+    Game.map:set(t.x, t.y, t)
     
+    local t = Mine(Game, 3, Game.horizon + 8)
+    add(Game.tiles, t)
+    Game.map:set(t.x, t.y, t)
+    
+    local t = Tile(Game, 2, Game.horizon + 8, Image.Mountain)
+    add(Game.tiles, t)
+    Game.map:set(t.x, t.y, t)
+    
+    -- add sky islands
     local starts = {}
     for i=1,6 do
         starts[#starts+1] = {
@@ -47,6 +73,7 @@ function Game:enter()
             end
         end
     end
+    
 end
 
 function Game:update(dt)
@@ -75,19 +102,28 @@ function Game:update(dt)
 end
 
 function Game:draw()
+    love.graphics.clear(49/255, 162/255,242/255)
+    love.graphics.scale(2,2)
     for e in all(Game.tiles) do
         e:draw()
     end
     for e in all(Game.entities) do
         e:draw()
     end
+    for e in all(Game.effects) do
+        e:draw()
+    end
     love.graphics.setColor(1,1,1)
     love.graphics.line(0,Game.horizon*16,love.graphics.getWidth(), Game.horizon*16)
+    Game.human:drawGui()
 end
 
 function Game:turn()
     for e in all(Game.entities) do
         e:turn()
+    end
+    for t in all(Game.tiles) do
+        t:turn()
     end
 end
 

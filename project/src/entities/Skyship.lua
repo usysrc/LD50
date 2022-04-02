@@ -7,9 +7,18 @@ local Skyship = function(Game, x,y)
     i.y = y
     i.dx = 0
     i.dy = 0
+    i.frame = 0
+    i.bobbingAmplitude = 0.5
     i.draw = function(self)
+        self.frame = self.frame + 0.05
+        i.bobbingAmplitude = 0.5
+        if self.moving then
+            self.frame = self.frame + 0.1
+            i.bobbingAmplitude = 1
+        end
+
         love.graphics.setColor(1,1,1)
-        love.graphics.rectangle("line", self.x*16+self.dx*16, self.y*16+self.dy*16, 16,16)
+        love.graphics.draw(Image.skyship, self.x*16+self.dx*16+8, self.y*16+self.dy*16+8+math.cos(self.frame)*self.bobbingAmplitude, 0, self.dir, 1, 8, 8)
     end
     i.update = function(self)
     end
@@ -19,8 +28,10 @@ local Skyship = function(Game, x,y)
     i.keypressed = function(self, key)
         local x,y = 0, 0
         if key == "left" then
+            self.dir = -1
             x = x - 1
         elseif key == "right" then
+            self.dir = 1
             x = x + 1
         elseif key == "up" then
             y = y - 1
@@ -40,6 +51,7 @@ local Skyship = function(Game, x,y)
                     e.updatetimer = 0
                     self.broken = true
                     x = 0
+                    y = Game.horizon - self.y - 1
                 end
             end
         end
@@ -54,9 +66,11 @@ local Skyship = function(Game, x,y)
         self.y = self.y + y
         self.dx = -x
         self.dy = -y
-        tween(0.1, self, {dx=0, dy=0},"linear", function()
+        self.moving = true
+        tween(0.2, self, {dx=0, dy=0},"linear", function()
             self.dx = 0
             self.dy = 0
+            self.moving = false
             Game.locked = false
         end)
         return true
