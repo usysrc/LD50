@@ -1,7 +1,7 @@
 --
 -- Map Class
 --
--- 2016 Heachant, Tilmann Hars <headchant@headchant.com>
+-- 2022 Heachant, Tilmann Hars <headchant@headchant.com>
 --
 -- Made for tilemaps
 
