@@ -31,6 +31,10 @@ local Mine = function(Game, x,y)
         print(found)
         if found then
             add(found, { type= "sky-crystal" })
+        else
+            add(other.inventory, {
+                { type= "sky-crystal" }
+            })
         end
     end
     return i
