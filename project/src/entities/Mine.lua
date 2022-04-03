@@ -1,5 +1,9 @@
 local Gamestate     = requireLibrary("hump.gamestate")
-local Lost     = require("src.states.Lost")
+local Lost          = require("src.states.Lost")
+local timer         = requireLibrary("hump.timer")
+local tween         = timer.tween
+local Tile          = require("src.entities.Tile")
+
 
 local Mine = function(Game, x,y)
     local i = {}
@@ -7,6 +11,7 @@ local Mine = function(Game, x,y)
     i.y = y
     i.power = 0
     i.blocking = true
+    i.interacttext = "x: to mine"
     i.draw = function(self)
         love.graphics.setColor(1,1,1)
         love.graphics.draw(Image.Mine, self.x*16, self.y*16)
@@ -19,7 +24,12 @@ local Mine = function(Game, x,y)
     i.turn = function(self)
     end
     i.interact = function(self, other)
-        
+        Sfx.mine:play()
+        local t = Tile(Game, self.x, self.y, Image.hit)
+        add(Game.effects, t)
+        timer.after(0.05, function()
+            del(Game.effects, t)
+        end)
         if math.random() < 0.8 then return end
         local found
         for itemstack in all(other.inventory) do
@@ -28,7 +38,7 @@ local Mine = function(Game, x,y)
                 break
             end
         end
-        print(found)
+        Sfx.crystal:play()
         if found then
             add(found, { type= "sky-crystal" })
         else

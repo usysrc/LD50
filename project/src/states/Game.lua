@@ -12,12 +12,19 @@ local Vessel        = require("src.entities.Vessel")
 local Tile          = require("src.entities.Tile")
 local Beacon        = require("src.entities.Beacon")
 local Mine          = require("src.entities.Mine")
+local Bird          = require("src.entities.Bird")
 
 
 Game = Gamestate.new()
 
 
 function Game:enter()
+    love.audio.stop()
+    Music.air:setVolume(0.2)
+    Music.air:setLooping(true)
+    Music.ground:setVolume(0.2)
+    Music.ground:setLooping(true)
+    love.audio.play(Music.ground)
     Game.entities = {}
     Game.tiles = {}
     Game.map = Map()
@@ -26,11 +33,13 @@ function Game:enter()
     Game.invaders = {}
     Game.effects = {}
 
+    add(Game.entities, Bird(Game, 0, Game.horizon - 2))
+    add(Game.entities, Bird(Game, 30, Game.horizon - 6))
     add(Game.entities, Vessel(Game, 1, 0))
-    Game.player = Player(Game, 5, Game.horizon+10)
+    Game.player = Player(Game, 5, Game.horizon + 10)
     Game.human = Game.player
 	add(Game.entities, Game.player)
-    Game.skyship = Skyship(Game, 22, Game.horizon-1)
+    Game.skyship = Skyship(Game, 22, Game.horizon - 1)
     add(Game.entities, Game.skyship)
 
     -- add ground tiles
@@ -42,7 +51,7 @@ function Game:enter()
         end
     end
 
-    local t = Beacon(Game, 25, Game.horizon + 10)
+    local t = Beacon(Game, 25, Game.horizon + 5)
     add(Game.tiles, t)
     Game.map:set(t.x, t.y, t)
     
@@ -53,6 +62,7 @@ function Game:enter()
     local t = Tile(Game, 2, Game.horizon + 8, Image.Mountain)
     add(Game.tiles, t)
     Game.map:set(t.x, t.y, t)
+    
     
     -- add sky islands
     local starts = {}
@@ -128,5 +138,10 @@ function Game:turn()
 end
 
 function Game:keypressed(key)
-    
+    if Game.locked then return end
+    if key == "x" then
+        if Game.player:keypressed("x") then
+            Game:turn()
+        end
+    end
 end

@@ -1,5 +1,6 @@
 local timer         = requireLibrary("hump.timer")
 local tween         = timer.tween
+local Cannonball     = require("src.entities.Cannonball")
 
 local Skyship = function(Game, x,y)
     local i = {}
@@ -18,14 +19,28 @@ local Skyship = function(Game, x,y)
         end
 
         love.graphics.setColor(1,1,1)
-        love.graphics.draw(Image.skyship, self.x*16+self.dx*16+8, self.y*16+self.dy*16+8+math.cos(self.frame)*self.bobbingAmplitude, 0, self.dir, 1, 8, 8)
+        local bobbing = math.cos(self.frame)*self.bobbingAmplitude
+        if self.broken then bobbing = 0 end
+        love.graphics.draw(Image.skyship, self.x*16+self.dx*16+8, self.y*16+self.dy*16+8+bobbing, 0, self.dir, 1, 8, 8)
+        if self.broken then
+            love.graphics.draw(Image.redx, self.x*16+self.dx*16+8, self.y*16+self.dy*16+8, 0, self.dir, 1, 8, 8)
+        end
     end
     i.update = function(self)
     end
     i.turn = function()
 
     end
+    i.shoot = function(self)
+        Sfx.shootcannon:play()
+        local c = Cannonball(Game, self.x, self.y, i.dir)
+        add(Game.entities, c)
+    end
     i.keypressed = function(self, key)
+        if key == "x" then
+            self:shoot()
+            return true
+        end
         local x,y = 0, 0
         if key == "left" then
             self.dir = -1
@@ -41,24 +56,31 @@ local Skyship = function(Game, x,y)
         if self.broken then x = 0; y = 1 end
         for e in all(Game.invaders) do
             if e.x == self.x + x and e.y == self.y + y then
-                -- player has to attack from the sides!
-                if e.y >= self.y then
-                    del(Game.invaders, e)
-                    del(Game.entities, e)
-                    return
-                elseif e.y < self.y then
-                    -- if you attack from underneath you break
-                    e.updatetimer = 0
-                    self.broken = true
-                    x = 0
-                    y = Game.horizon - self.y - 1
-                end
+                -- your ship breaks
+                Sfx.fall:play()
+                e.updatetimer = 0
+                self.broken = true
+                x = 0
+                y = Game.horizon - self.y - 1
+            end
+        end
+        for e in all(Game.entities) do
+            if e.type == "bird" and e.x == self.x + x and e.y == self.y + y then
+                -- your ship breaks
+                Sfx.fall:play()
+                e.updatetimer = 0
+                self.broken = true
+                x = 0
+                y = Game.horizon - self.y - 1
             end
         end
         if self.y + y >= Game.horizon then
             Game.player = Game.human
             add(Game.entities, Game.human)
             Game.human.x = Game.skyship.x
+            love.audio.stop()
+            Music.ground:play()
+            Sfx.entry:play()
             return false
         end
         Game.locked = true
@@ -72,6 +94,7 @@ local Skyship = function(Game, x,y)
             self.dy = 0
             self.moving = false
             Game.locked = false
+            if self.broken then Sfx.crashland:play() end
         end)
         return true
     end

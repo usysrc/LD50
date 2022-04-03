@@ -9,7 +9,10 @@ local Player = function(Game, x,y)
     i.dy = 0
     i.frame = 0
     i.dir = 1
+    i.ox = 0
+    i.oy = 0
     i.maxframes = 2
+    i.interacttext = ""
     i.inventory = {
         { -- itemstack
             { type = "sky-crystal" },
@@ -27,13 +30,16 @@ local Player = function(Game, x,y)
         
     end
     i.drawGui = function(self)
+        love.graphics.setColor(0,0,0)
+        local x,y = love.graphics.getWidth()/4-love.graphics.getWidth()/8, love.graphics.getHeight()/2-32
+        love.graphics.rectangle("fill", x-16, y-16, x+16*5, y + 16)
         for itemstack in all(self.inventory) do
             love.graphics.setColor(1,1,1)
-            local x,y = love.graphics.getWidth()/4-50, love.graphics.getHeight()/2-32
-            -- love.graphics.rectangle("fill", x,y,16,16) --draw image of item
             love.graphics.draw(Image.crystal, x, y)
-            love.graphics.print(#itemstack.."x "..itemstack[1].type, x,y+16)
+            love.graphics.printf(#itemstack.." ", x-8, y+16, 32,"center")
         end
+        love.graphics.setColor(1,1,1)
+        love.graphics.print(self.interacttext, 0, love.graphics.getHeight()/2-16)
     end
     i.update = function(self)
     end
@@ -41,6 +47,14 @@ local Player = function(Game, x,y)
 
     end
     i.keypressed = function(self, key)
+        if key == "x" then 
+            local t = Game.map:get(self.x + self.ox, self.y + self.oy)
+            if t and t.blocking then
+                if t.interact then t:interact(self) end
+            end 
+            return true
+        end
+        self.interacttext = ""
         local x,y = 0, 0
         if key == "left" then
             self.dir = -1
@@ -56,18 +70,23 @@ local Player = function(Game, x,y)
         local t = Game.map:get(self.x + x, self.y + y)
         local blocked
         if t and t.blocking then
-            if t.interact then t:interact(self) end
+            if t.interacttext then self.interacttext = t.interacttext end
             blocked = true
         end
         if self.y + y < Game.horizon then
             -- enter the skyship
-            if self.y + y == Game.skyship.y and self.x + x == Game.skyship.x then
+            if not Game.skyship.broken and self.y + y == Game.skyship.y and self.x + x == Game.skyship.x then
+                love.audio.stop()
+                Music.air:play()
+                Sfx.entry:play()
                 Game.human = Game.player
                 Game.player = Game.skyship
                 del(Game.entities, Game.human)
             end
             return false
         end
+        self.ox = x
+        self.oy = y
         if not blocked then
             Game.locked = true
             self.x = self.x + x

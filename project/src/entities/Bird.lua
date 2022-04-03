@@ -1,8 +1,7 @@
 local Gamestate     = requireLibrary("hump.gamestate")
-local Lost     = require("src.states.Lost")
-local Invader       = require("src.entities.Invader")
+local Lost          = require("src.states.Lost")
 
-local Invader = function(Game, x,y)
+local Bird = function(Game, x,y)
     local i = {}
     i.x = x
     i.y = y
@@ -13,9 +12,13 @@ local Invader = function(Game, x,y)
     i.dir = 1
     i.dx = 0
     i.dy = 0
+    i.frame = 0
+    i.type = "bird"
     i.draw = function(self)
+        i.frame = i.frame + 0.1
         love.graphics.setColor(0,0,0)
-        love.graphics.draw(Image.skyship, self.x*16+self.dx*16+8, self.y*16+self.dy*16+8, 0, self.dir, 1, 8, 8)
+        local frame = 1+math.floor(i.frame%2)
+        love.graphics.draw(Image["bird"..frame], self.x*16+self.dx*16+8, self.y*16+self.dy*16+8, 0, self.dir, 1, 8, 8)
     end
     i.xDir = 1
     i.update = function(self)
@@ -29,19 +32,9 @@ local Invader = function(Game, x,y)
             self:move()
         end
 
-        i.droptimer = i.droptimer + i.dropspeed
-        if i.droptimer >= 1 then
-            i.droptimer = 0
-            i.droptimer = -math.random()
-            self:drop()
-        end
+      
     end
-    i.drop = function(self)
-        if #Game.invaders > 3 then return end
-        local inv = Invader(Game, self.x, self.y + 1)
-        add(Game.entities, inv)
-        add(Game.invaders, inv)
-    end
+   
     i.move = function(self)
         self.modes[self.mode](self)
     end
@@ -59,4 +52,4 @@ local Invader = function(Game, x,y)
     return i
 end
 
-return Invader
+return Bird
