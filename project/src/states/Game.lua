@@ -20,8 +20,8 @@ local Bird          = require("src.entities.Bird")
 
 Game = Gamestate.new()
 
-
 function Game:enter()
+    Game.rounds = 0
     love.audio.stop()
     Music.air:setVolume(0.2)
     Music.air:setLooping(true)
@@ -148,6 +148,7 @@ function Game:draw()
 end
 
 function Game:turn()
+    Game.rounds = Game.rounds + 1
     for e in all(Game.entities) do
         e:turn()
     end

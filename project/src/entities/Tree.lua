@@ -15,6 +15,10 @@ local Tree = function(Game, x,y)
     i.draw = function(self)
         love.graphics.setColor(1,1,1)
         love.graphics.draw(Image.Tree, self.x*16, self.y*16)
+        if Game.player.interacttext == self.interacttext then
+            love.graphics.draw(Image.bubble, self.x*16 - 100/2, self.y*16-40)
+            love.graphics.print(self.interacttext, self.x*16-16, self.y*16-28)
+        end
     end
     i.update = function(self) end
     i.turn = function(self)

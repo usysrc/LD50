@@ -32,7 +32,7 @@ function love.load(arg)
     love.graphics.setFont(love.graphics.newFont("fonts/HelvetiPixel.ttf", 16))
 	recursiveRequire("src")
 	Gamestate.registerEvents()
-	Gamestate.switch(Game)
+	Gamestate.switch(require("src.states.Start"))
 end
 
 -- Logic

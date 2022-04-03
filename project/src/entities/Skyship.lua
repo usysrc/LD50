@@ -39,7 +39,11 @@ local Skyship = function(Game, x,y)
                 stack = itemstack
             end
         end
-        if not found then return end
+        if not found then 
+            Game.locked = true
+            timer.after(0.2, function() Game.locked = false end)
+            return 
+        end
         del(stack, found)
         if #stack == 0 then
             del(Game.human.inventory, stack)

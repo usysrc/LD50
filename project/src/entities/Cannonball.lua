@@ -25,15 +25,18 @@ local Cannonball = function(Game, x,y, dir)
             end
             for e in all(Game.invaders) do
                 if e.x == self.x and e.y == self.y then
-                    del(Game.entities, self)
-                    del(Game.invaders, e)
-                    del(Game.entities, e)
                     Sfx.invaderhit:play()
-                    local e = Tile(Game, self.x, self.y, Image.smoke)
-                    add(Game.effects, e)
+                    e.hp = e.hp - 1
+                    del(Game.entities, self)
+                    local f = Tile(Game, self.x, self.y, Image.smoke)
+                    add(Game.effects, f)
                     timer.after(0.1, function()
-                        del(Game.effects,e)
+                        del(Game.effects,f)
                     end)
+                    if e.hp <= 0 then
+                        del(Game.invaders, e)
+                        del(Game.entities, e)
+                    end
                     Game.locked = false
                     return
                 end

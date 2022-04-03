@@ -7,6 +7,7 @@ local Invader = function(Game, x,y)
     i.y = y
     i.dx = 0
     i.dy = 0
+    i.hp = 3
     i.updatespeed = 0.05
     i.updatetimer = 0
     i.draw = function(self)
@@ -37,7 +38,7 @@ local Invader = function(Game, x,y)
             y = y + 1
 
             if self.y + y >= Game.horizon -1 then
-                Gamestate.switch(Lost)
+                Gamestate.switch(Lost, Game.rounds)
             end
             if y > 0 and self.x + x == Game.player.x and self.y + y == Game.player.y then
                 x,y = 0, 0

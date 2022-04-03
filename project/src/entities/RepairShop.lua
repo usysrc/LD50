@@ -11,10 +11,14 @@ local House = function(Game, x,y)
     i.y = y
     i.power = 0
     i.blocking = true
-    i.interacttext = "x: repair ship, 15 crystals"
+    i.interacttext = "x: repair ship\ncosts 15 crystals"
     i.draw = function(self)
         love.graphics.setColor(1,1,1)
         love.graphics.draw(Image.House, self.x*16, self.y*16)
+        if Game.player.x == self.x and Game.player.y == self.y+1 then
+            love.graphics.draw(Image.bubble, self.x*16 - 100/2, self.y*16-40)
+            love.graphics.print(self.interacttext, self.x*16-32, self.y*16-38)
+        end
     end
     i.update = function(self) end
     i.turn = function(self)
