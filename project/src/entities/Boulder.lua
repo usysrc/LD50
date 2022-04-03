@@ -5,7 +5,7 @@ local tween         = timer.tween
 local Tile          = require("src.entities.Tile")
 
 
-local Mine = function(Game, x,y)
+local Boulder = function(Game, x,y)
     local i = {}
     i.x = x
     i.y = y
@@ -14,7 +14,11 @@ local Mine = function(Game, x,y)
     i.interacttext = "x: to mine"
     i.draw = function(self)
         love.graphics.setColor(1,1,1)
-        love.graphics.draw(Image.Mine, self.x*16, self.y*16)
+        love.graphics.draw(Image.boulder, self.x*16, self.y*16)
+        if self.lit then
+            love.graphics.setColor(1,0,1,0.4)
+            love.graphics.rectangle("fill", self.x*16+4, self.y*16+4, 8, -1000)
+        end
     end
     i.update = function(self) end
     i.turn = function(self)
@@ -30,21 +34,21 @@ local Mine = function(Game, x,y)
         if math.random() < 0.8 then return end
         local found
         for itemstack in all(other.inventory) do
-            if #itemstack > 0 and itemstack[1].type == "sky-crystal" then
+            if #itemstack > 0 and itemstack[1].type == "cannonball" then
                 found = itemstack
                 break
             end
         end
         Sfx.crystal:play()
         if found then
-            add(found, { type = "sky-crystal", img = Image.crystal })
+            add(found, { type= "cannonball", img = Image.cannonball })
         else
             add(other.inventory, {
-                { type= "sky-crystal", img = Image.crystal }
+                { type= "cannonball", img = Image.cannonball }
             })
         end
     end
     return i
 end
 
-return Mine
+return Boulder

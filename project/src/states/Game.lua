@@ -12,6 +12,9 @@ local Vessel        = require("src.entities.Vessel")
 local Tile          = require("src.entities.Tile")
 local Beacon        = require("src.entities.Beacon")
 local Mine          = require("src.entities.Mine")
+local Boulder       = require("src.entities.Boulder")
+local Tree          = require("src.entities.Tree")
+local RepairShop    = require("src.entities.RepairShop")
 local Bird          = require("src.entities.Bird")
 
 
@@ -56,6 +59,18 @@ function Game:enter()
     Game.map:set(t.x, t.y, t)
     
     local t = Mine(Game, 3, Game.horizon + 8)
+    add(Game.tiles, t)
+    Game.map:set(t.x, t.y, t)
+
+    local t = Boulder(Game, 20, Game.horizon + 8)
+    add(Game.tiles, t)
+    Game.map:set(t.x, t.y, t)
+
+    local t = Tree(Game, 15, Game.horizon + 3)
+    add(Game.tiles, t)
+    Game.map:set(t.x, t.y, t)
+
+    local t = RepairShop(Game, 15, Game.horizon - 1)
     add(Game.tiles, t)
     Game.map:set(t.x, t.y, t)
     
@@ -108,6 +123,10 @@ function Game:update(dt)
         if Game.player:keypressed("down") then
             Game:turn()
         end
+    elseif love.keyboard.isDown("x") then
+        if Game.player:keypressed("x") then
+            Game:turn()
+        end
     end
 end
 
@@ -139,9 +158,5 @@ end
 
 function Game:keypressed(key)
     if Game.locked then return end
-    if key == "x" then
-        if Game.player:keypressed("x") then
-            Game:turn()
-        end
-    end
+    
 end

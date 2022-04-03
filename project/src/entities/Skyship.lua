@@ -32,6 +32,18 @@ local Skyship = function(Game, x,y)
 
     end
     i.shoot = function(self)
+        local found, stack
+        for itemstack in all(Game.human.inventory) do
+            if itemstack[1] and itemstack[1].type == "cannonball" then
+                found = itemstack[1]
+                stack = itemstack
+            end
+        end
+        if not found then return end
+        del(stack, found)
+        if #stack == 0 then
+            del(Game.human.inventory, stack)
+        end
         Sfx.shootcannon:play()
         local c = Cannonball(Game, self.x, self.y, i.dir)
         add(Game.entities, c)
@@ -53,6 +65,9 @@ local Skyship = function(Game, x,y)
         elseif key == "down" then
             y = y + 1
         end
+        if self.y == Game.horizon - 1 and x ~= 0 then
+            x = 0
+        end 
         if self.broken then x = 0; y = 1 end
         for e in all(Game.invaders) do
             if e.x == self.x + x and e.y == self.y + y then
@@ -83,6 +98,35 @@ local Skyship = function(Game, x,y)
             Sfx.entry:play()
             return false
         end
+        
+        if y < 0 then
+            local found, stack
+            for itemstack in all(Game.human.inventory) do
+                if itemstack[1] and itemstack[1].type == "wood" then
+                    found = itemstack[1]
+                    stack = itemstack
+                end
+            end
+            if not found then 
+                if self.y == Game.horizon - 1 then
+                    -- dont move if on horizon and no fuel
+                    x = 0
+                    y = 0
+                    return false
+                else
+                    Sfx.fall:play()
+                    self.broken = true
+                    x = 0
+                    y = Game.horizon - self.y - 1
+                end
+            else 
+                del(stack, found)
+                if #stack == 0 then
+                    del(Game.human.inventory, stack)
+                end
+            end
+        end
+        
         Game.locked = true
         self.x = self.x + x
         self.y = self.y + y

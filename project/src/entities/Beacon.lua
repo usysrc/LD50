@@ -40,6 +40,10 @@ local Beacon = function(Game, x,y)
             end
         end
         if found then
+            if not self.lit then
+                Sfx.beacon:play()
+            end
+            Sfx.click:play()
             self.power = self.power + 20
             self.lit = true
             Game.timestop = true
